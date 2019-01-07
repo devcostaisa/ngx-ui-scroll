@@ -35,7 +35,7 @@
     "skipTemplateCodegen": true,
     "annotateForClosureCompiler": true,
     "strictMetadataEmit": true,
-    "flatModuleOutFile": "ngx-ui-scroll.js",
-    "flatModuleId": "ngx-ui-scroll"
+    "flatModuleOutFile": "ngx-ui-scroll-cost.js",
+    "flatModuleId": "ngx-ui-scroll-cost"
   }
 }
