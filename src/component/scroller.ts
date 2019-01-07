@@ -52,7 +52,7 @@ export class Scroller {
   bindData(): Observable<any> {
     this._bindData();
     return Observable.create(observer => {
-        setTimeout(() => {
+        requestAnimationFrame(() => {
           observer.next();
           observer.complete();
         });

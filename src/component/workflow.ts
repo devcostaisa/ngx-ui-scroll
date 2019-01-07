@@ -24,7 +24,7 @@ export class Workflow {
     this.cyclesDone = 0;
     this.reset();
     this.subscribe();
-    setTimeout(() => this.run());
+    requestAnimationFrame(() => this.run());
   }
 
   reset() {
@@ -50,7 +50,7 @@ export class Workflow {
     const viewport = this.scroller.viewport;
     if (viewport.syntheticScrollPosition === viewport.scrollPosition) {
       const ssp = viewport.scrollPosition;
-      setTimeout(() => {
+      requestAnimationFrame(() => {
         if (ssp === viewport.scrollPosition) {
           viewport.syntheticScrollPosition = null;
         }
