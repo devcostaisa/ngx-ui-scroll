@@ -4,7 +4,7 @@ const fs = require('fs');
 const shell = require('shelljs');
 const chalk = require('chalk');
 
-const PACKAGE = `ngx-ui-scroll`;
+const PACKAGE = `ngx-ui-scroll-cost`;
 const NPM_DIR = `dist`;
 const ESM2015_DIR = `${NPM_DIR}/esm2015`;
 const ESM5_DIR = `${NPM_DIR}/esm5`;
