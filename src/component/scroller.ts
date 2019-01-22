@@ -76,6 +76,7 @@ export class Scroller {
   start(options: Run = {}) {
     this.state.startCycle(options);
     this.adapter.isLoading = true;
+    this.adapter.isLoading$.next(true);
     this.log(`---=== Workflow ${this.state.cycleCount} start`, options);
     this.process$ = new BehaviorSubject(<ProcessSubject>{ process: Process.start });
   }
@@ -83,6 +84,7 @@ export class Scroller {
   end() {
     this.state.endCycle();
     this.adapter.isLoading = false;
+    this.adapter.isLoading$.next(false);
     this.viewport.saveScrollPosition();
     this.process$.complete();
     this.purgeCycleSubscriptions();

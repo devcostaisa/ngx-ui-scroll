@@ -1,6 +1,6 @@
 {
   "name": "ngx-ui-scroll-cost",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Infinite/virtual scroll for Angular",
   "main": "./bundles/ngx-ui-scroll-cost.umd.js",
   "module": "./esm5/ngx-ui-scroll-cost.js",

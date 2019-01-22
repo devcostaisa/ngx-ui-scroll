@@ -1,6 +1,6 @@
 {
   "name": "ngx-ui-scroll-cost-app",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "license": "MIT",
   "scripts": {
     "start": "ng serve --delete-output-path=false",
