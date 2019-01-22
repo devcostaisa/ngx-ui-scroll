@@ -1,7 +1,8 @@
 import { Subject } from 'rxjs/Subject';
 
 import { Adapter as IAdapter, AdapterAction, AdapterActionType } from '../interfaces/index';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+
 
 export class Adapter implements IAdapter {
   public isInitialized;
