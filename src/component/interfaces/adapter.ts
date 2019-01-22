@@ -5,7 +5,7 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 export interface Adapter {
   isInitialized: boolean;
   isLoading?: boolean;
-  isLoading$?: BehaviorSubject<boolean>,
+  isLoading$?: BehaviorSubject<boolean>;
   reload: Function;
 }
 
