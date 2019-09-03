@@ -1,9 +1,8 @@
-import { Item } from './item';
-import { Direction } from '../interfaces/index';
+import { Direction } from '../../interfaces/index';
+import { Item } from '../item';
 
 export class FetchModel {
   private _newItemsData: Array<any> | null;
-  simulate: boolean;
   items: Array<Item>;
   firstIndexBuffer: number | null;
   lastIndexBuffer: number | null;
@@ -16,7 +15,9 @@ export class FetchModel {
   averageItemSize: number;
   hasAverageItemSizeChanged: boolean;
   direction: Direction | null;
+  simulate: boolean;
   isPrepend: boolean;
+  isReplace: boolean;
 
   constructor() {
     this.callCount = 0;
@@ -34,6 +35,7 @@ export class FetchModel {
     this.hasAverageItemSizeChanged = false;
     this.direction = null;
     this.isPrepend = false;
+    this.isReplace = false;
   }
 
   get newItemsData(): Array<Item> | null {
@@ -42,7 +44,9 @@ export class FetchModel {
 
   set newItemsData(items: Array<Item> | null) {
     this._newItemsData = items;
-    this.callCount++;
+    if (items && items.length) {
+      this.callCount++;
+    }
   }
 
   get shouldFetch(): boolean {
@@ -61,15 +65,33 @@ export class FetchModel {
     return this.firstIndex !== null && this.lastIndex !== null ? this.lastIndex - this.firstIndex + 1 : 0;
   }
 
-  prepend(items: Array<Item>) {
+  doSimulate(items: Array<Item>) {
     this.simulate = true;
     this._newItemsData = items.map(item => item.data);
     this.items = items;
-    this.lastIndex = items[0].$index;
-    this.firstIndex = items[items.length - 1].$index;
     this.hasAnotherPack = false;
     this.negativeSize = 0;
+  }
+
+  append(items: Array<Item>) {
+    this.doSimulate(items);
+    this.lastIndex = items[items.length - 1].$index;
+    this.firstIndex = items[0].$index;
+    this.direction = Direction.forward;
+  }
+
+  prepend(items: Array<Item>) {
+    this.doSimulate(items);
+    this.lastIndex = items[0].$index;
+    this.firstIndex = items[items.length - 1].$index;
     this.direction = Direction.backward;
     this.isPrepend = true;
+  }
+
+  replace(items: Array<Item>) {
+    this.doSimulate(items);
+    this.lastIndex = items[0].$index;
+    this.firstIndex = items[items.length - 1].$index;
+    this.isReplace = true;
   }
 }

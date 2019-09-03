@@ -14,6 +14,7 @@ export interface Settings {
 export interface DevSettings {
   debug?: boolean;
   immediateLog?: boolean;
+  logProcessRun?: boolean;
   logTime?: boolean;
   throttle?: number;
   inertia?: boolean;
@@ -22,4 +23,5 @@ export interface DevSettings {
   initDelay?: number;
   initWindowDelay?: number;
   maxSynthScrollDelay?: number;
+  changeOverflow?: boolean;
 }

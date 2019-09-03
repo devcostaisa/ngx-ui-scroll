@@ -46,6 +46,7 @@ constructor() {
 }
 `
   }, {
+    active: true,
     name: DemoSourceType.Template,
     text: `The uiScroll is
 {{datasource.adapter.isLoading ? 'loading': 'relaxing'}}.
@@ -78,8 +79,6 @@ for {{isLoadingCounter}} times.
 
   constructor() {
     this.datasource.adapter.isLoading$
-      .subscribe(isLoading =>
-        this.isLoadingCounter += !isLoading ? 1 : 0
-      );
+      .subscribe(isLoading => this.isLoadingCounter += !isLoading ? 1 : 0);
   }
 }

@@ -112,8 +112,24 @@ export class Buffer {
     return true;
   }
 
+  append(items: Array<Item>) {
+    this.items = [...this.items, ...items];
+  }
+
   prepend(items: Array<Item>) {
     this.items = [...items, ...this.items];
+  }
+
+  removeItem(item: Item) {
+    this.items = this.items.filter((_item: Item) => _item.$index !== item.$index);
+    this.items.forEach((_item: Item) => {
+      if (_item.$index > item.$index) {
+        _item.$index--;
+        _item.nodeId = String(_item.$index);
+      }
+    });
+    this.absMaxIndex--;
+    this.cache.removeItem(item.$index);
   }
 
   getFirstVisibleItemIndex(): number {
@@ -167,8 +183,16 @@ export class Buffer {
     return this.cache.recalculateAverageSize();
   }
 
+  getIndexToAppend(eof?: boolean): number {
+    return (!eof ? (this.items.length ? this.items[this.items.length - 1].$index : this.maxIndex) : this.absMaxIndex) + 1;
+  }
+
   getIndexToPrepend(bof?: boolean): number {
     return (!bof ? (this.items.length ? this.items[0].$index : this.minIndex) : this.absMinIndex) - 1;
+  }
+
+  getIndexToAdd(eof: boolean, prepend: boolean): number {
+    return prepend ? this.getIndexToPrepend(eof) : this.getIndexToAppend(eof);
   }
 
 }

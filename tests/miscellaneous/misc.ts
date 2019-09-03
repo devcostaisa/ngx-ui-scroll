@@ -4,6 +4,7 @@ import { DebugElement } from '@angular/core';
 
 import { TestComponentInterface } from '../scaffolding/testComponent';
 import { TestBedConfig } from '../scaffolding/runner';
+import { generateItem } from './items';
 
 import { Direction } from '../../src/component/interfaces';
 import { UiScrollComponent } from '../../src/ui-scroll.component';
@@ -91,7 +92,7 @@ export class Misc {
   }
 
   checkElementContentByIndex(index: number): boolean {
-    return this.getElementText(index) === `${index} : item #${index}`;
+    return this.getElementText(index) === index + ' : ' + generateItem(index).text;
   }
 
   checkElementId(element: HTMLElement, index: number): boolean {
@@ -116,9 +117,12 @@ export class Misc {
     return this.getScrollableElement()[this.horizontal ? 'scrollLeft' : 'scrollTop'];
   }
 
-  scrollTo(value: number) {
-    this.datasource.adapter.setScrollPosition(value);
-    // this.getScrollableElement()[this.horizontal ? 'scrollLeft' : 'scrollTop'] = value;
+  scrollTo(value: number, native?: boolean) {
+    if (native) {
+      this.getScrollableElement()[this.horizontal ? 'scrollLeft' : 'scrollTop'] = value;
+    } else {
+      this.datasource.adapter.setScrollPosition(value);
+    }
   }
 
   scrollMin() {

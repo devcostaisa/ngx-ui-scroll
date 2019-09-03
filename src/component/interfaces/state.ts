@@ -1,12 +1,22 @@
-import { ItemAdapter } from './index';
-import { FetchModel } from '../classes/fetch';
-import { BehaviorSubject } from 'rxjs/index';
+import { BehaviorSubject, Subject } from 'rxjs/index';
+
+import { Direction, ItemAdapter } from './index';
+import { FetchModel } from '../classes/state/fetch';
+import { ClipModel } from '../classes/state/clip';
 
 export interface WindowScrollState {
   delta: number;
   positionToUpdate: number;
 
   reset: Function;
+}
+
+export interface ScrollEventData {
+  time: number;
+  position: number;
+  positionBefore: number | null;
+  direction: Direction;
+  handled: boolean;
 }
 
 export interface ScrollState {
@@ -19,17 +29,34 @@ export interface ScrollState {
   keepScroll: boolean;
   window: WindowScrollState;
 
+  position: number;
+  time: number;
+  direction: Direction;
+
   reset: Function;
+  getData: Function;
+  setData: Function;
 }
 
 export interface SyntheticScroll {
+  list: Array<ScrollEventData>;
+  before: ScrollEventData | null;
+
+  isSet: boolean;
+  isDone: boolean;
   position: number | null;
-  positionBefore: number | null;
-  delta: number;
-  time: number;
-  readyToReset: boolean;
+  time: number | null;
+  direction: Direction | null;
+  handledPosition: number | null;
+  handledTime: number | null;
+  registeredPosition: number | null;
+  registeredTime: number | null;
 
   reset: Function;
+  register: Function;
+  push: Function;
+  done: Function;
+  nearest: Function;
 }
 
 export interface WorkflowOptions {
@@ -37,6 +64,8 @@ export interface WorkflowOptions {
   scroll: boolean;
   keepScroll: boolean;
   byTimer: boolean;
+
+  reset: Function;
 }
 
 export interface State {
@@ -48,11 +77,9 @@ export interface State {
   countDone: number;
   workflowOptions: WorkflowOptions;
 
-  startIndex: number;
   fetch: FetchModel;
-  noClip: boolean;
-  doClip: boolean;
-  clipCall: number;
+  clip: ClipModel;
+  startIndex: number;
   lastPosition: number;
   preFetchPosition: number;
   preAdjustPosition: number;
@@ -64,11 +91,13 @@ export interface State {
   scrollState: ScrollState;
   syntheticScroll: SyntheticScroll;
 
-  loopPendingSource: BehaviorSubject<boolean>;
-  workflowPendingSource: BehaviorSubject<boolean>;
+  isLoadingSource: Subject<boolean>;
+  loopPendingSource: Subject<boolean>;
+  workflowPendingSource: Subject<boolean>;
   firstVisibleSource: BehaviorSubject<ItemAdapter>;
   lastVisibleSource: BehaviorSubject<ItemAdapter>;
 
+  isLoading: boolean;
   loopPending: boolean;
   workflowPending: boolean;
   firstVisibleItem: ItemAdapter;
@@ -77,4 +106,6 @@ export interface State {
   lastVisibleWanted: boolean;
 
   time: number;
+  loop: string;
+  loopNext: string;
 }

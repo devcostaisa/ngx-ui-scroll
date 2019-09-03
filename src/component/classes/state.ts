@@ -1,96 +1,20 @@
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 
 import {
-  State as IState,
   ItemAdapter,
-  WindowScrollState as IWindowScrollState,
+  State as IState,
   ScrollState as IScrollState,
   SyntheticScroll as ISyntheticScroll,
   WorkflowOptions as IWorkflowOptions
 } from '../interfaces/index';
-import { FetchModel } from './fetch';
+
 import { Settings } from './settings';
 import { Logger } from './logger';
-import { itemAdapterEmpty } from './adapter';
-
-class WindowScrollState implements IWindowScrollState {
-  positionToUpdate: number;
-  delta: number;
-
-  constructor() {
-    this.reset();
-  }
-
-  reset() {
-    this.delta = 0;
-    this.positionToUpdate = 0;
-  }
-}
-
-class ScrollState implements IScrollState {
-  firstScroll: boolean;
-  firstScrollTime: number;
-  lastScrollTime: number;
-  scrollTimer: number | null;
-  workflowTimer: number | null;
-  scroll: boolean;
-  keepScroll: boolean;
-  window: IWindowScrollState;
-
-  constructor() {
-    this.window = new WindowScrollState();
-    this.reset();
-  }
-
-  reset() {
-    this.firstScroll = false;
-    this.firstScrollTime = 0;
-    this.lastScrollTime = 0;
-    this.scrollTimer = null;
-    this.workflowTimer = null;
-    this.scroll = false;
-    this.keepScroll = false;
-    this.window.reset();
-  }
-}
-
-class SyntheticScroll implements ISyntheticScroll {
-  position: number | null;
-  positionBefore: number | null;
-  delta: number;
-  time: number;
-  readyToReset: boolean;
-
-  constructor() {
-    this.reset(null);
-  }
-
-  reset(position: number | null = null) {
-    this.position = position;
-    this.positionBefore = null;
-    this.delta = 0;
-    this.time = 0;
-    this.readyToReset = false;
-  }
-}
-
-class WorkflowOptions implements IWorkflowOptions {
-  empty: boolean;
-  scroll: boolean;
-  keepScroll: boolean;
-  byTimer: boolean;
-
-  constructor(settings: Settings) {
-    this.reset();
-  }
-
-  reset() {
-    this.empty = false;
-    this.scroll = false;
-    this.keepScroll = false;
-    this.byTimer = false;
-  }
-}
+import { FetchModel } from './state/fetch';
+import { ClipModel } from './state/clip';
+import { WorkflowOptions } from './state/workflowOptions';
+import { ScrollState, SyntheticScroll } from './state/scroll';
+import { itemAdapterEmpty } from '../utils/adapter';
 
 export class State implements IState {
 
@@ -103,13 +27,11 @@ export class State implements IState {
   workflowCycleCount: number;
   isInitialWorkflowCycle: boolean;
   countDone: number;
-  workflowOptions: WorkflowOptions;
+  workflowOptions: IWorkflowOptions;
 
-  startIndex: number;
   fetch: FetchModel;
-  noClip: boolean;
-  doClip: boolean;
-  clipCall: number;
+  clip: ClipModel;
+  startIndex: number;
   lastPosition: number;
   preFetchPosition: number;
   preAdjustPosition: number;
@@ -121,41 +43,48 @@ export class State implements IState {
   scrollState: IScrollState;
   syntheticScroll: ISyntheticScroll;
 
-  loopPendingSource: BehaviorSubject<boolean>;
-  workflowPendingSource: BehaviorSubject<boolean>;
-  isLoadingSource: BehaviorSubject<boolean>;
+  isLoadingSource: Subject<boolean>;
+  loopPendingSource: Subject<boolean>;
+  workflowPendingSource: Subject<boolean>;
   firstVisibleSource: BehaviorSubject<ItemAdapter>;
   lastVisibleSource: BehaviorSubject<ItemAdapter>;
   firstVisibleWanted: boolean;
   lastVisibleWanted: boolean;
 
+  private _isLoading: boolean;
+  private _loopPending: boolean;
+  private _workflowPending: boolean;
+
+  get isLoading(): boolean {
+    return this._isLoading;
+  }
+
+  set isLoading(value: boolean) {
+    if (this._isLoading !== value) {
+      this._isLoading = value;
+      this.isLoadingSource.next(value);
+    }
+  }
+
   get loopPending(): boolean {
-    return this.loopPendingSource.getValue();
+    return this._loopPending;
   }
 
   set loopPending(value: boolean) {
-    if (this.loopPending !== value) {
+    if (this._loopPending !== value) {
+      this._loopPending = value;
       this.loopPendingSource.next(value);
     }
   }
 
   get workflowPending(): boolean {
-    return this.workflowPendingSource.getValue();
+    return this._workflowPending;
   }
 
   set workflowPending(value: boolean) {
-    if (this.workflowPending !== value) {
+    if (this._workflowPending !== value) {
+      this._workflowPending = value;
       this.workflowPendingSource.next(value);
-    }
-  }
-
-  get isLoading(): boolean {
-    return this.isLoadingSource.getValue();
-  }
-
-  set isLoading(value: boolean) {
-    if (this.isLoading !== value) {
-      this.isLoadingSource.next(value);
     }
   }
 
@@ -183,6 +112,14 @@ export class State implements IState {
     return Number(new Date()) - this.initTime;
   }
 
+  get loop(): string {
+    return `${this.settings.instanceIndex}-${this.workflowCycleCount}-${this.innerLoopCount}`;
+  }
+
+  get loopNext(): string {
+    return `${this.settings.instanceIndex}-${this.workflowCycleCount}-${this.innerLoopCount + 1}`;
+  }
+
   constructor(settings: Settings, logger: Logger) {
     this.settings = settings;
     this.logger = logger;
@@ -196,20 +133,21 @@ export class State implements IState {
 
     this.setCurrentStartIndex(settings.startIndex);
     this.fetch = new FetchModel();
-    this.noClip = settings.infinite;
-    this.doClip = false;
-    this.clipCall = 0;
+    this.clip = new ClipModel();
     this.sizeBeforeRender = 0;
     this.sizeAfterRender = 0;
     this.fwdPaddingBeforeRender = 0;
     this.bwdPaddingAverageSizeItemsCount = 0;
 
     this.scrollState = new ScrollState();
-    this.syntheticScroll = new SyntheticScroll();
+    this.syntheticScroll = new SyntheticScroll(logger);
 
-    this.loopPendingSource = new BehaviorSubject<boolean>(false);
-    this.workflowPendingSource = new BehaviorSubject<boolean>(false);
-    this.isLoadingSource = new BehaviorSubject<boolean>(false);
+    this._isLoading = false;
+    this._loopPending = false;
+    this._workflowPending = false;
+    this.isLoadingSource = new Subject<boolean>();
+    this.loopPendingSource = new Subject<boolean>();
+    this.workflowPendingSource = new Subject<boolean>();
     this.firstVisibleSource = new BehaviorSubject<ItemAdapter>(itemAdapterEmpty);
     this.lastVisibleSource = new BehaviorSubject<ItemAdapter>(itemAdapterEmpty);
     this.firstVisibleWanted = false;

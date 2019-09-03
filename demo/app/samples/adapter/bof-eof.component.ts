@@ -13,7 +13,7 @@ export class DemoBofEofComponent {
 
   demoContext: DemoContext = <DemoContext> {
     scope: 'adapter',
-    title: `Begin/end of file`,
+    title: `Begin / end of file`,
     titleId: `bof-eof`,
     viewportId: `bof-eof-viewport`,
     count: 0,
@@ -53,6 +53,7 @@ export class DemoBofEofComponent {
   }
 });`
   }, {
+    active: true,
     name: DemoSourceType.Template,
     text: `Begin of file is {{datasource.adapter.bof ? '' : 'not'}} reached.
 <br>

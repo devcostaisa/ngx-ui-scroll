@@ -18,12 +18,10 @@ const OUT_DIR_ESM5 = `${NPM_DIR}/package/esm5`;
 /* Package version */
 shell.echo(`Setup package version`);
 let version = config.version;
-const versionContent = `export default '${version}';\\n`;
-let result = shell.exec(`printf "${versionContent}" >./src/ui-scroll.version.ts`);
-if (result.code !== 0) {
-  shell.echo(chalk.red(`Error: Can't define package version`));
-  shell.exit(1);
-}
+const versionContent = `export default '${version}';`;
+const versionFilePath = './src/ui-scroll.version.ts';
+shell.touch(versionFilePath);
+shell.echo(versionContent).to(versionFilePath);
 shell.echo(chalk.green(`${PACKAGE} v${version}`));
 
 shell.echo(`Start building...`);
@@ -44,15 +42,6 @@ shell.exec(`tslint -p tsconfig.json -t stylish src/**/*.ts`);
 shell.echo(chalk.green(`TSLint completed`));
 
 shell.cp(`-Rf`, [`src`, `*.ts`, `*.json`], `${OUT_DIR}`);
-
-/* Try to process scss files  */
-shell.echo(`Try to process scss files`);
-if (shell.exec(`node-sass -r ${OUT_DIR} -o ${OUT_DIR}`).code === 0) {
-  shell.rm(`-Rf`, `${OUT_DIR}/**/*.scss`);
-  shell.ls(`${OUT_DIR}/**/*.css`).forEach(function (file) {
-    shell.mv(file, file.replace('.css', '.scss'));
-  });
-}
 
 /* AoT compilation */
 shell.echo(`Start AoT compilation`);

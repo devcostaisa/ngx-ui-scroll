@@ -1,14 +1,21 @@
 import Init from './init';
 import Scroll from './scroll';
 import Reload from './reload';
-import Prepend from './prepend';
+import Append from './append';
+import Check from './check';
+import Remove from './remove';
+import UserClip from './userClip';
 import Start from './start';
 import PreFetch from './preFetch';
 import Fetch from './fetch';
 import PostFetch from './postFetch';
 import Render from './render';
 import Adjust from './adjust';
+import PreClip from './preClip';
 import Clip from './clip';
 import End from './end';
 
-export { Init, Scroll, Reload, Prepend, Start, PreFetch, Fetch, PostFetch, Render, Clip, Adjust, End };
+export {
+  Init, Scroll, Reload, Append, Check, Remove, UserClip,
+  Start, PreFetch, Fetch, PostFetch, Render, PreClip, Clip, Adjust, End
+};

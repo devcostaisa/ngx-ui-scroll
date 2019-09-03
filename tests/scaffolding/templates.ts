@@ -6,6 +6,7 @@ export interface TemplateSettings {
   itemWidth?: number | null;
   horizontal?: boolean;
   dynamicSize?: string | null;
+  viewportPadding?: number;
 }
 
 const defaultTemplateSettings: TemplateSettings = {
@@ -15,7 +16,8 @@ const defaultTemplateSettings: TemplateSettings = {
   itemHeight: 20,
   itemWidth: null,
   horizontal: false,
-  dynamicSize: null
+  dynamicSize: null,
+  viewportPadding: 0
 };
 
 export interface TemplateData {
@@ -28,7 +30,8 @@ export const generateTemplate = (templateSettings?: TemplateSettings): TemplateD
   const viewportClass = `${settings.noViewportClass ? '' :
     'viewport' + (settings.horizontal ? '-horizontal' : '')}`;
   const viewportStyle = `${settings.viewportHeight ? 'height:' + settings.viewportHeight + 'px;' : ''}` +
-    `${settings.viewportWidth ? 'width:' + settings.viewportWidth + 'px;' : ''}`;
+    `${settings.viewportWidth ? 'width:' + settings.viewportWidth + 'px;' : ''}` +
+    `${settings.viewportPadding ? 'padding:' + settings.viewportPadding + 'px;' : ''}`;
   const hasItemStyle = settings.dynamicSize || settings.itemHeight || settings.itemWidth;
   return <TemplateData>{
     settings,
@@ -36,9 +39,9 @@ export const generateTemplate = (templateSettings?: TemplateSettings): TemplateD
   class="${viewportClass}"
   style="${viewportStyle}"
 ><div
-  *uiScroll="let item of datasource"
+  *uiScroll="let item of datasource; let index = index"
   [style]="${hasItemStyle ? 'getItemStyle(item)' : ''}"
-><span>{{item.id}}</span> : <b>{{item.text}}</b></div></div>`
+><span>{{index}}</span> : <b>{{item.text}}</b></div></div>`
   };
 };
 

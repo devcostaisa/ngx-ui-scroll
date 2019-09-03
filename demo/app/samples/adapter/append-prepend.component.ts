@@ -6,16 +6,16 @@ import { doLog } from '../../shared/datasource-get';
 import { Datasource } from '../../../../public_api'; // from 'ngx-ui-scroll';
 
 @Component({
-  selector: 'app-demo-prepend',
-  templateUrl: './prepend.component.html'
+  selector: 'app-demo-append-prepend',
+  templateUrl: './append-prepend.component.html'
 })
-export class DemoPrependComponent {
+export class DemoAppendPrependComponent {
 
   demoContext: DemoContext = <DemoContext> {
     scope: 'adapter',
-    title: `Prepend`,
-    titleId: `prepend`,
-    viewportId: `prepend-viewport`,
+    title: `Append / prepend`,
+    titleId: `append-prepend`,
+    viewportId: `append-prepend-viewport`,
     count: 0,
     log: ''
   };
@@ -50,7 +50,6 @@ datasource = new Datasource({
     for (let i = index; i < index + count; i++) {
       data.push({ id: i, text: 'item #' + i });
     }
-    doLog(this.demoContext, index, count, data.length);
     success(data);
   },
   settings: {
@@ -58,20 +57,31 @@ datasource = new Datasource({
   }
 });
 
+generateItems(isPrepend: boolean) {
+    const items: any[] = [];
+    for (let i = 0; i < this.inputValue; i++) {
+      this.newIndex++;
+      const item = {
+        id: this.newIndex,
+        text: 'new item #' + this.newIndex + '*'
+      };
+      isPrepend ? items.unshift(item) : items.push(item);
+    }
+    return items;
+}
+
 doPrepend() {
-  const items = [];
-  for (let i = 0; i < this.inputValue; i++) {
-    this.newIndex++;
-    items.push({
-      id: this.newIndex,
-      text: 'new item #' + this.newIndex + '*'
-    });
-  }
-  this.datasource.adapter.prepend(items);
+  this.datasource.adapter.prepend(this.generateItems(true));
+}
+
+doAppend() {
+  this.datasource.adapter.append(this.generateItems(false));
 }`
   }, {
+    active: true,
     name: DemoSourceType.Template,
-    text: `<button (click)="doPrepend()">Prepend</button>
+    text: `<button (click)="doAppend()">Append</button> /
+<button (click)="doPrepend()">Prepend</button>
 <input [(ngModel)]="inputValue" size="2">
 
 <div class="viewport">
@@ -99,16 +109,25 @@ doPrepend() {
     this.inputValue = value;
   }
 
-  doPrepend() {
-    const items = [];
+  generateItems(isPrepend: boolean) {
+    const items: any[] = [];
     for (let i = 0; i < this.inputValue; i++) {
       this.newIndex++;
-      items.push({
+      const item = {
         id: this.newIndex,
         text: 'new item #' + this.newIndex + '*'
-      });
+      };
+      isPrepend ? items.unshift(item) : items.push(item);
     }
-    this.datasource.adapter.prepend(items);
+    return items;
+  }
+
+  doPrepend() {
+    this.datasource.adapter.prepend(this.generateItems(true));
+  }
+
+  doAppend() {
+    this.datasource.adapter.append(this.generateItems(false));
   }
 
 }
